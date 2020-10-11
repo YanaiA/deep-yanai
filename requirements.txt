@@ -1,0 +1,15 @@
+# matplotlib==3.0.0
+# opencv-python==4.1.0.25
+# pandas==0.25.3
+# pandas-compat==0.1.1
+# Pygments==2.1
+# scikit-learn==0.21.2
+tensorflow
+Keras==2.4.3
+scipy==1.4.1
+h5py
+# statistics
+awscli
+wandb
+boto3
+python-dotenv
