@@ -2,6 +2,7 @@
   <dictionary name="yanai">
     <words>
       <w>cifar</w>
+      <w>wandb</w>
       <w>yanai</w>
     </words>
   </dictionary>
