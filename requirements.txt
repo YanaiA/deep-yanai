@@ -7,8 +7,8 @@
 # statistics
 # awscli
 
-tensorflow-gpu
 Keras==2.4.3
+tensorflow-gpu
 scipy==1.4.1
 h5py
 wandb

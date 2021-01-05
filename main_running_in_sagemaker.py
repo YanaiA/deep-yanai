@@ -2,7 +2,7 @@ import keras
 import wandb
 from wandb.keras import WandbCallback
 import os
-from keras.utils import to_categorical
+from keras.utils import to_categorical, plot_model
 from keras.datasets import cifar10
 from dotenv import load_dotenv
 from keras.callbacks import ModelCheckpoint
@@ -11,7 +11,7 @@ import pickle
 import boto3
 from botocore.errorfactory import ClientError
 import posixpath
-from architectures.classification.basic import build_model
+from architectures.classification.basic import build_model, build_cnn_model
 
 
 def download_data(task):
@@ -60,7 +60,7 @@ def train_model(model, x_train, y_train, task):
     checkpoints_path = f'/opt/ml/model/checkpoints/{task}/{date}'
     checkpoints_file_format = 'checkpoints.{epoch:02d}-{val_loss:.2f}.hdf5'
     model.fit(x_train, y_train, verbose=2,
-              batch_size=32, epochs=2, shuffle=True, validation_split=0.2,
+              batch_size=32, epochs=100, shuffle=True, validation_split=0.2,
               callbacks=[WandbCallback(),
                          ModelCheckpoint(posixpath.join(checkpoints_path, checkpoints_file_format))])
     model.save('/opt/ml/model')
@@ -86,7 +86,9 @@ def main():
     x_train, y_train, x_test, y_test = download_data(task)
     x_train, y_train, x_test, y_test, input_shape, num_classes = prepare_data(x_train, y_train, x_test, y_test)
 
-    model = build_model(input_shape, num_classes)
+    # model = build_model(input_shape, num_classes)
+    model = build_cnn_model(input_shape, num_classes)
+    model.summary()
     train_model(model, x_train, y_train, task)
     test_model(model, x_test, y_test)
 
