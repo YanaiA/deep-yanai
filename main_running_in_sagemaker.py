@@ -1,5 +1,6 @@
 import keras
 import wandb
+from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
 from wandb.keras import WandbCallback
 import os
 from keras.utils import to_categorical, plot_model
@@ -12,6 +13,7 @@ import boto3
 from botocore.errorfactory import ClientError
 import posixpath
 from architectures.classification.basic import build_model, build_cnn_model
+import random
 
 
 def download_data(task):
@@ -55,14 +57,29 @@ def prepare_data(x_train, y_train, x_test, y_test):
     return x_train, y_train, x_test, y_test, input_shape, num_classes
 
 
-def train_model(model, x_train, y_train, task):
+def train_model(model, x, y, task):
     date = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
     checkpoints_path = f'/opt/ml/model/checkpoints/{task}/{date}'
     checkpoints_file_format = 'checkpoints.{epoch:02d}-{val_loss:.2f}.hdf5'
-    model.fit(x_train, y_train, verbose=2,
-              batch_size=32, epochs=100, shuffle=True, validation_split=0.2,
-              callbacks=[WandbCallback(),
-                         ModelCheckpoint(posixpath.join(checkpoints_path, checkpoints_file_format))])
+    checkpoint_callback = ModelCheckpoint(posixpath.join(checkpoints_path, checkpoints_file_format))
+
+    L = len(x)
+    split_ration = 0.8
+    train_indexes = random.sample(range(L), int(L*split_ration))
+    validation_indexes = list(set(range(L)) - set(train_indexes))
+
+    x_train = x[train_indexes]
+    y_train = y[train_indexes]
+    x_val = x[validation_indexes]
+    y_val = y[validation_indexes]
+
+    generator = ImageDataGenerator(rotation_range=30, zoom_range=0.20,
+                                   fill_mode="nearest", shear_range=0.20, horizontal_flip=True,
+                                   width_shift_range=0.1, height_shift_range=0.1)
+
+    model.fit(generator.flow(x_train, y_train, batch_size=32), steps_per_epoch=len(x_train) // 32,
+              verbose=2, epochs=100, shuffle=True, validation_data=(x_val, y_val),
+              callbacks=[WandbCallback(), checkpoint_callback])
     model.save('/opt/ml/model')
 
 
