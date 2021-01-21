@@ -1,6 +1,5 @@
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Input, Conv2D, BatchNormalization, LeakyReLU, Dropout, Activation
-from keras.optimizers import Adam
 from tensorflow.python.keras.models import Model
 
 
@@ -12,7 +11,6 @@ def build_model(input_shape, num_classes):
         Dense(150, activation='relu'),
         Dense(num_classes, activation='softmax')
     ])
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=5e-3), metrics=['accuracy'])
     return model
 
 
@@ -42,5 +40,4 @@ def build_cnn_model(inputs_shape, num_classes):
     output_layer = Activation('softmax')(x10)
 
     model = Model(input_layer, output_layer)
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=5e-3), metrics=['accuracy'])
     return model
