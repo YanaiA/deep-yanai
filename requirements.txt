@@ -16,3 +16,5 @@ boto3
 python-dotenv
 matplotlib
 sklearn
+kaggle
+python-csv

@@ -11,7 +11,8 @@ import posixpath
 from architectures.classification.basic import build_model, build_cnn_model
 import random
 from keras.optimizers import Adam
-from data.cifar10 import download_data, prepare_data
+# from data.cifar10 import download_data, prepare_data
+from data.digit_recognizer import download_data, prepare_data
 
 
 class LearningRateCallback(keras.callbacks.Callback):
@@ -41,11 +42,11 @@ def train_model(model, x, y, task):
     y_val = y[validation_indexes]
 
     generator = ImageDataGenerator(rotation_range=30, zoom_range=0.20,
-                                   fill_mode="nearest", shear_range=0.20, horizontal_flip=True,
-                                   width_shift_range=0.1, height_shift_range=0.1)
+                                   fill_mode="nearest", shear_range=0.20, horizontal_flip=False,
+                                   width_shift_range=0.2, height_shift_range=0.2)
 
     lr_schedule = ExponentialDecay(
-        initial_learning_rate=0.1,
+        initial_learning_rate=0.01,
         decay_steps=100,
         decay_rate=0.9,
         staircase=False)
@@ -53,7 +54,7 @@ def train_model(model, x, y, task):
     model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=lr_schedule), metrics=['accuracy'])
 
     model.fit(generator.flow(x_train, y_train, batch_size=32), steps_per_epoch=len(x_train) // 32,
-              verbose=2, epochs=100, shuffle=True, validation_data=(x_val, y_val),
+              verbose=2, epochs=500, shuffle=True, validation_data=(x_val, y_val),
               callbacks=[WandbCallback(), checkpoint_callback, LearningRateCallback(model)])
     model.save('/opt/ml/model')
 
@@ -72,10 +73,11 @@ def main():
 
         os.environ['WANDB_DISABLE_CODE'] = '*.patch'  # do not copy code to wandb
         os.system('wandb login ' + wandb_api_key)
-        wandb.init(project="yanai-test1")
+        wandb.init(project="yanai-test2")
 
-    task = 'cifar10'
-    x_train, y_train, x_test, y_test, class_names = download_data(task)
+    # task = 'cifar10'
+    task = 'digit-recognizer'
+    x_train, y_train, x_test, y_test, class_names = download_data()
     x_train, y_train, x_test, y_test, input_shape, num_classes = prepare_data(x_train, y_train, x_test, y_test)
 
     # model = build_model(input_shape, num_classes)

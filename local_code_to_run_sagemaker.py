@@ -16,7 +16,6 @@ def get_data_to_s3():
 
 def run_sagemaker():
     experiment_folder = r's3://yanai-temp/SageMaker'
-    s3_data_path = posixpath.join(experiment_folder, 'Data', 'cifar10')
     SAGEMAKER_PARAMS = {'machine': 'ml.c4.2xlarge', # 'ml.p3.2xlarge', #'ml.m5.xlarge',
                         'tensorflow_version': '1.15.2', #'2.2', # '1.12',
                         'dir_to_work_on': os.getcwd(),  # all code from this path is copied to container
@@ -53,6 +52,7 @@ def run_sagemaker():
                               use_spot_instances=train_use_spot_instances,
                               max_wait=timeout_length)  # max time to wait for spot
 
+    s3_data_path = posixpath.join(experiment_folder, 'Data', 'cifar10')  # it doesn't matter, not really used
     tf_estimator.fit({'training': posixpath.join(s3_data_path, 'train'),
                       'validation': posixpath.join(s3_data_path, 'val')})
     # tf_estimator.fit()
