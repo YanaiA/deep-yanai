@@ -131,3 +131,4 @@ secrets.env
 wandb/
 *.p
 trained_models/
+data/
