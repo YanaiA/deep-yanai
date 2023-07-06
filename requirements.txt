@@ -9,7 +9,7 @@
 
 Keras==2.4.3
 tensorflow-gpu
-scipy==1.4.1
+scipy==1.10.0
 h5py
 wandb
 boto3
